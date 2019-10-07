@@ -96,14 +96,17 @@ void CUIModule::DoExam()
     }
     else {
       string str_wrong = ConvertQuestion2String(quest);
-      str_wrong = "答题错误, 选择了" + input + "\n" + str_wrong;
+      str_wrong = "答题错误, 输入为: " + input + "\n" + str_wrong + "此时正确率为: " + examiner.GetRateOfCorrect();
       LOG_INFO(str_wrong);
     }
   };
   while (true)
   {
     if (!examiner_.GetNextQuestion(quest)) {
-      Init();
+      int ret = Init();
+      if (ret == USER_QUIT) {
+        break;
+      }
       if (!examiner_.ReloadPool()) {
         LOG_ERROR(STR_RELOAD_FAILED);
         cout << "加载题库失败, 请退出后重新尝试." << endl;
