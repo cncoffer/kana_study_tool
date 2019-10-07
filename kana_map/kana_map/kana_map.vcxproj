@@ -114,6 +114,7 @@
     <ClCompile Include="Examiner.cpp" />
     <ClCompile Include="Lexicon.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MyLog.cpp" />
     <ClCompile Include="UIModule.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +122,7 @@
     <ClInclude Include="Examiner.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="Lexicon.h" />
+    <ClInclude Include="MyLog.h" />
     <ClInclude Include="UIModule.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
