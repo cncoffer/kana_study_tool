@@ -53,7 +53,7 @@ bool CExaminer::GetNextQuestion(FullQuestion & full_question)
     q.title_ = buff;
     q.question_type_ = quest.question_type_;
     ret = GetOption(quest.kana_letter_, false, vt_option, answer_pos);
-    if (ret) {
+    if (ret && vt_option.size() >= 4) {
       q.option1_ = "1. " + vt_option[0];
       q.option2_ = "2. " + vt_option[1];
       q.option3_ = "3. " + vt_option[2];
@@ -66,7 +66,7 @@ bool CExaminer::GetNextQuestion(FullQuestion & full_question)
     q.title_ = buff;
     q.question_type_ = quest.question_type_;
     ret = GetOption(quest.kana_letter_, true, vt_option, answer_pos);
-    if (ret) {
+    if (ret && vt_option.size() >= 4) {
       q.option1_ = "1. " + vt_option[0];
       q.option2_ = "2. " + vt_option[1];
       q.option3_ = "3. " + vt_option[2];
@@ -98,7 +98,7 @@ bool CExaminer::GetNextQuestion(FullQuestion & full_question)
 std::string CExaminer::GetRateOfCorrect()
 {
   ostringstream os;
-  os << right_count_ << '/' << total_count_ << right_count_ * 100 / total_count_ << '%';
+  os << right_count_ << '/' << total_count_ << '(' << right_count_ * 100 / total_count_ << "%)";
   return os.str();
 }
 
@@ -125,15 +125,26 @@ bool CExaminer::GetOption(string kana, bool is_kana, std::vector<std::string>& v
   string answer = kana;
   // 首先随机选择另外三个假名/罗马音(随机选择也可以用shuffle做, 随机排序后选择前三个, 如果有重复的就再选择第四个), 然后将四个答案随机分配到四个位置上. 随机分配位置也可以使用shuffle函数
   if (is_kana) {
-    if (CLexicon::GetInstance()->isHiragana(kana)) {
-      CLexicon::GetInstance()->GetHiraganaList(list);
+    if (CLexicon::GetInstance()->isHiraganaNoAoyin(kana)) {
+      CLexicon::GetInstance()->GetHiraganaNoAoyinList(list);
     }
-    else { // 片假名
-      CLexicon::GetInstance()->GetKatakanaList(list);
+    else if (CLexicon::GetInstance()->isHiraganaAoyin(kana)) {
+      CLexicon::GetInstance()->GetHiraganaAoyinList(list);
+    }
+    else if (CLexicon::GetInstance()->isKatakanaNoAoyin(kana)) {
+      CLexicon::GetInstance()->GetKatakanaNoAoyinList(list);
+    }
+    else {
+      CLexicon::GetInstance()->GetKatakanaAoyinList(list);
     }
   }
-  else { // 罗马音
-    CLexicon::GetInstance()->GetRomanList(list);
+  else {
+    if (CLexicon::GetInstance()->isRomanNoAoyin(CLexicon::GetInstance()->GetRoman(kana))) {
+      CLexicon::GetInstance()->GetRomanNoAoyinList(list);
+    }
+    else {
+      CLexicon::GetInstance()->GetRomanAoyinList(list);
+    }
     answer = CLexicon::GetInstance()->GetRoman(kana);
   }
 
@@ -144,10 +155,13 @@ bool CExaminer::GetOption(string kana, bool is_kana, std::vector<std::string>& v
   vt.push_back(answer);
   unsigned int seed = unsigned int(std::chrono::system_clock::now().time_since_epoch().count());
   shuffle(list.begin(), list.end(), std::default_random_engine(seed));
-  for (int i = 0; i < 3; ++i) {
+  int count = 0;
+  for (size_t i = 0; count < 3 && i < list.size(); ++i) {
     if (list[i] == answer) continue;
     vt.push_back(list[i]);
+    count++;
   }
+  if (count < 3) return false;
 
   // shuffle the answer
   shuffle(vt.begin(), vt.end(), std::default_random_engine(seed));

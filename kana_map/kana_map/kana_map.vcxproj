@@ -112,6 +112,7 @@
   <ItemGroup>
     <ClCompile Include="CandidatePool.cpp" />
     <ClCompile Include="Examiner.cpp" />
+    <ClCompile Include="Global.cpp" />
     <ClCompile Include="Lexicon.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyLog.cpp" />

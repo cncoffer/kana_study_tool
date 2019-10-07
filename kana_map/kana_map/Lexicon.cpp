@@ -10,7 +10,17 @@
 
 using namespace std;
 
-#define COUNT_HIRAGANA 104
+#define COUNT_FIFTY_SOUND   46
+#define COUNT_VOICED_SOUND  25
+#define COUNT_AOYIN         33
+#define COUNT_HIRAGANA      104 // 46 + 25 + 33
+
+#define CONF_INI            "kana_pair.ini"
+
+bool IsInList(const StrList &list, const string &target)
+{
+  return find(list.begin(), list.end(), target) != list.end();
+}
 
 CLexicon::CLexicon()
 {
@@ -25,10 +35,13 @@ CLexicon::~CLexicon()
 void CLexicon::Init()
 {
   kana_roman_map_.clear();
-  hiragana_list_.clear();
-  katakana_list_.clear();
-  roman_list_.clear();
-  ifstream ifile("pair.txt");
+  hiragana_aoyin_list_.clear();
+  katakana_aoyin_list_.clear();
+  roman_aoyin_list_.clear();
+  hiragana_no_aoyin_list_.clear();
+  katakana_no_aoyin_list_.clear();
+  roman_no_aoyin_list_.clear();
+  ifstream ifile(CONF_INI);
   string str;
   int count = 0;
   while (getline(ifile, str)) {
@@ -37,12 +50,19 @@ void CLexicon::Init()
     isstream >> kana >> roman;
     kana_roman_map_[kana] = roman;
     count++;
-    if (count <= COUNT_HIRAGANA) {
-      hiragana_list_.push_back(kana);
-      roman_list_.push_back(roman);
+    if (count <= COUNT_FIFTY_SOUND + COUNT_VOICED_SOUND) {
+      hiragana_no_aoyin_list_.push_back(kana);
+      roman_no_aoyin_list_.push_back(roman);
+    }
+    else if (count > COUNT_FIFTY_SOUND + COUNT_VOICED_SOUND && count <= COUNT_HIRAGANA) {
+      hiragana_aoyin_list_.push_back(kana);
+      roman_aoyin_list_.push_back(roman);
+    }
+    else if (count > COUNT_HIRAGANA && count <= COUNT_HIRAGANA + COUNT_FIFTY_SOUND + COUNT_VOICED_SOUND) {
+      katakana_no_aoyin_list_.push_back(kana);
     }
     else {
-      katakana_list_.push_back(kana);
+      katakana_aoyin_list_.push_back(kana);
     }
   }
 }
@@ -72,40 +92,112 @@ std::string CLexicon::GetRoman(const std::string&kana)
 
 bool CLexicon::isHiragana(const std::string & kana)
 {
-  auto it = std::find(hiragana_list_.begin(), hiragana_list_.end(), kana);
-  return it != hiragana_list_.end();
+  return isHiraganaAoyin(kana) || isHiraganaNoAoyin(kana);
 }
 
 bool CLexicon::isKatakana(const std::string & kana)
 {
-  auto it = std::find(katakana_list_.begin(), katakana_list_.end(), kana);
-  return it != katakana_list_.end();
+  return isKatakanaAoyin(kana) || isKatakanaNoAoyin(kana);
 }
 
 bool CLexicon::isRoman(const std::string & roman)
 {
-  auto it = std::find(roman_list_.begin(), roman_list_.end(), roman);
-  return it != roman_list_.end();
+  return isRomanAoyin(roman) || isRomanNoAoyin(roman);
 }
 
-bool CLexicon::GetHiraganaList(std::vector<std::string>& list)
+bool CLexicon::GetHiraganaList(StrList& list)
 {
   list.clear();
-  copy(hiragana_list_.begin(), hiragana_list_.end(), back_inserter(list));
+  copy(hiragana_aoyin_list_.begin(), hiragana_aoyin_list_.end(), back_inserter(list));
+  copy(hiragana_no_aoyin_list_.begin(), hiragana_no_aoyin_list_.end(), back_inserter(list));
   return true;
 }
 
-bool CLexicon::GetKatakanaList(std::vector<std::string>& list)
+bool CLexicon::GetKatakanaList(StrList& list)
 {
   list.clear();
-  copy(katakana_list_.begin(), katakana_list_.end(), back_inserter(list));
+  copy(katakana_aoyin_list_.begin(), katakana_aoyin_list_.end(), back_inserter(list));
+  copy(katakana_no_aoyin_list_.begin(), katakana_no_aoyin_list_.end(), back_inserter(list));
   return true;
 }
 
-bool CLexicon::GetRomanList(std::vector<std::string>& list)
+bool CLexicon::GetRomanList(StrList& list)
 {
   list.clear();
-  copy(roman_list_.begin(), roman_list_.end(), back_inserter(list));
+  copy(roman_aoyin_list_.begin(), roman_aoyin_list_.end(), back_inserter(list));
+  copy(roman_no_aoyin_list_.begin(), roman_no_aoyin_list_.end(), back_inserter(list));
   return true;
 }
 
+
+bool CLexicon::isHiraganaNoAoyin(const std::string&kana)
+{
+  return IsInList(hiragana_no_aoyin_list_, kana);
+}
+
+bool CLexicon::isKatakanaNoAoyin(const std::string&kana)
+{
+  return IsInList(katakana_no_aoyin_list_, kana);
+}
+
+bool CLexicon::isRomanNoAoyin(const std::string&roman)
+{
+  return IsInList(roman_no_aoyin_list_, roman);
+}
+
+bool CLexicon::isHiraganaAoyin(const std::string&kana)
+{
+  return IsInList(hiragana_aoyin_list_, kana);
+}
+
+bool CLexicon::isKatakanaAoyin(const std::string&kana)
+{
+  return IsInList(katakana_aoyin_list_, kana);
+}
+
+bool CLexicon::isRomanAoyin(const std::string&roman)
+{
+  return IsInList(roman_aoyin_list_, roman);
+}
+
+bool CLexicon::GetHiraganaNoAoyinList(StrList &list)
+{
+  list.clear();
+  copy(hiragana_no_aoyin_list_.begin(), hiragana_no_aoyin_list_.end(), back_inserter(list));
+  return true;
+}
+
+bool CLexicon::GetKatakanaNoAoyinList(StrList &list)
+{
+  list.clear();
+  copy(katakana_no_aoyin_list_.begin(), katakana_no_aoyin_list_.end(), back_inserter(list));
+  return true;
+}
+
+bool CLexicon::GetRomanNoAoyinList(StrList &list)
+{
+  list.clear();
+  copy(roman_no_aoyin_list_.begin(), roman_no_aoyin_list_.end(), back_inserter(list));
+  return true;
+}
+
+bool CLexicon::GetHiraganaAoyinList(StrList &list)
+{
+  list.clear();
+  copy(hiragana_aoyin_list_.begin(), hiragana_aoyin_list_.end(), back_inserter(list));
+  return true;
+}
+
+bool CLexicon::GetKatakanaAoyinList(StrList &list)
+{
+  list.clear();
+  copy(katakana_aoyin_list_.begin(), katakana_aoyin_list_.end(), back_inserter(list));
+  return true;
+}
+
+bool CLexicon::GetRomanAoyinList(StrList &list)
+{
+  list.clear();
+  copy(roman_aoyin_list_.begin(), roman_aoyin_list_.end(), back_inserter(list));
+  return true;
+}

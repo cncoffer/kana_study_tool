@@ -46,3 +46,4 @@ struct Question
 	std::string   kana_letter_;
 };
 
+std::string ConvertQuestion2String(const FullQuestion& quest);

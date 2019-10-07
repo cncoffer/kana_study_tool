@@ -98,25 +98,32 @@ void CUIModule::DoExam()
         cout << "加载题库失败, 请退出后重新尝试." << endl;
         break;
       }
+      cout << "开始做题, 一轮结束后, 可重新选择题型." << endl;
+      cout << "如果想结束做题, 请直接关闭程序." << endl;
       continue;
     }
-    cout << "开始做题, 一轮结束后, 可重新选择题型." << endl;
-    cout << "如果想结束做题, 请直接关闭程序." << endl;
-    cout << examiner_.GetProcess() << "\t";
+    cout << endl << examiner_.GetProcess();
     switch (quest.question_type_)
     {
     case select_kana2roman:
     case select_roman2kana:
     {
-      cout << quest.title_ << endl;
-      cout << quest.option1_ << "\t\t\t" << quest.option2_ << endl;
-      cout << quest.option3_ << "\t\t\t" << quest.option4_ << endl;
+      cout << "\t" << quest.title_ << endl;
+      cout << "\t" << quest.option1_ << "\t\t\t" << quest.option2_ << endl;
+      cout << "\t" << quest.option3_ << "\t\t\t" << quest.option4_ << endl;
       string input;
       cin >> input;
 
       int sel = atoi(input.c_str()) - 1;
       bool is_right = (sel == quest.answer_pos_);
-      if (is_right) examiner_.AddRightCount();
+      if (is_right) {
+        examiner_.AddRightCount();
+      }
+      else {
+        string str_wrong = ConvertQuestion2String(quest);
+        str_wrong = "答题错误, 选择了" + input + "\n" + str_wrong;
+        LOG_INFO(str_wrong);
+      }
       sprintf_s(buff, MAX_STRING_LENGTH, STR_ANSWER_TIP, is_right ? STR_ANSWER_IS_RIGHT : STR_ANSWER_IS_WRONG, to_string(quest.answer_pos_ + 1).c_str());
       cout << buff << endl;
       break;
@@ -124,7 +131,7 @@ void CUIModule::DoExam()
     case input_kana2roman:
     case input_roman2kana:
     {
-      cout << quest.title_ << endl;
+      cout << "\t" << quest.title_ << endl;
       string input;
       cin >> input;
       bool is_right = (quest.answer_str_.compare(input) == 0);
