@@ -42,6 +42,7 @@ string CCandidatePool::GetProcess()
 
 void CCandidatePool::OptimizePool()
 {
+  if (candidate_pool_.empty()) return;
   // 检查是否有连续出现相同的, 尽量把他们消掉.
   for (PoolIter item = candidate_pool_.begin()+1; item < candidate_pool_.end() - 1; ++item) {
     if (item->kana_letter_.compare((item - 1)->kana_letter_) == 0) {
@@ -103,25 +104,26 @@ bool CCandidatePool::ReloadPool()
 
 void CCandidatePool::AddQuestion(vector<string> &list, Pool &candidate_pool, bool is_read_select, bool is_read_input)
 {
+  if (list.empty()) return;
   Question quest;
   auto add_question = [&candidate_pool, &quest](QuestionType type) {
     quest.question_type_ = type;
     candidate_pool.push_back(quest);
   };
-  if (is_read_select) {
-    for (vector<string>::const_iterator it = list.begin(); it < list.end(); ++it) {
-      quest.kana_letter_ = *it;
 
-      if (is_read_select) {
-        add_question(select_kana2roman);
-        add_question(select_roman2kana);
-      }
-      if (is_read_input) {
-        add_question(input_kana2roman);
-        add_question(input_roman2kana);
-      }
-      // todo: add other type
+  bool is_hiragana = CLexicon::GetInstance()->isHiragana(list[0]);
+  for (vector<string>::const_iterator it = list.begin(); it < list.end(); ++it) {
+    quest.kana_letter_ = *it;
+
+    if (is_read_select) {
+      add_question(select_kana2roman);
+      add_question(select_roman2kana);
     }
+    if (is_read_input) {
+      add_question(input_kana2roman);
+      add_question(is_hiragana ? input_roman2hiragana : input_roman2katakana);
+    }
+    // todo: add other type
   }
   return;
 }

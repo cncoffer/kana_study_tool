@@ -89,6 +89,17 @@ void CUIModule::DoExam()
 {
   FullQuestion  quest;
   char buff[MAX_STRING_LENGTH];
+  string input;
+  auto HandleAnswer = [](CExaminer &examiner, bool is_right, const FullQuestion &quest, const string &input) {
+    if (is_right) {
+      examiner.AddRightCount();
+    }
+    else {
+      string str_wrong = ConvertQuestion2String(quest);
+      str_wrong = "答题错误, 选择了" + input + "\n" + str_wrong;
+      LOG_INFO(str_wrong);
+    }
+  };
   while (true)
   {
     if (!examiner_.GetNextQuestion(quest)) {
@@ -111,37 +122,29 @@ void CUIModule::DoExam()
       cout << "\t" << quest.title_ << endl;
       cout << "\t" << quest.option1_ << "\t\t\t" << quest.option2_ << endl;
       cout << "\t" << quest.option3_ << "\t\t\t" << quest.option4_ << endl;
-      string input;
       cin >> input;
 
       int sel = atoi(input.c_str()) - 1;
       bool is_right = (sel == quest.answer_pos_);
-      if (is_right) {
-        examiner_.AddRightCount();
-      }
-      else {
-        string str_wrong = ConvertQuestion2String(quest);
-        str_wrong = "答题错误, 选择了" + input + "\n" + str_wrong;
-        LOG_INFO(str_wrong);
-      }
+      HandleAnswer(examiner_, is_right, quest, input);
       sprintf_s(buff, MAX_STRING_LENGTH, STR_ANSWER_TIP, is_right ? STR_ANSWER_IS_RIGHT : STR_ANSWER_IS_WRONG, to_string(quest.answer_pos_ + 1).c_str());
       cout << buff << endl;
       break;
     }
     case input_kana2roman:
-    case input_roman2kana:
+    case input_roman2hiragana:
+    case input_roman2katakana:
     {
       cout << "\t" << quest.title_ << endl;
-      string input;
       cin >> input;
       bool is_right = (quest.answer_str_.compare(input) == 0);
-      if (is_right) examiner_.AddRightCount();
+      HandleAnswer(examiner_, is_right, quest, input);
       sprintf_s(buff, MAX_STRING_LENGTH, STR_ANSWER_TIP, is_right ? STR_ANSWER_IS_RIGHT : STR_ANSWER_IS_WRONG, quest.answer_str_.c_str());
       cout << buff << endl;
       break;
     }
     default:
-      cout << "todo" << endl;
+      cout << "unknown error" << endl;
       break;
     }
     cout << "当前正确率为: " << examiner_.GetRateOfCorrect() << endl;

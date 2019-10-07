@@ -24,7 +24,8 @@ enum QuestionType
   select_kana2roman = 0,
   select_roman2kana,
   input_kana2roman,
-  input_roman2kana,
+  input_roman2hiragana,
+  input_roman2katakana,
 };
 
 struct FullQuestion

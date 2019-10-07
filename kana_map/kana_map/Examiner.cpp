@@ -15,6 +15,8 @@ const string s_title_select = "请选择 %s 对应的%s:";
 const string s_title_input = "请输入 %s 对应的%s:";
 const string s_kana = "假名";
 const string s_roman = "罗马音";
+const string s_hiragana = "平假名";
+const string s_katakana = "片假名";
 
 CExaminer::CExaminer()
   : right_count_(0)
@@ -75,13 +77,19 @@ bool CExaminer::GetNextQuestion(FullQuestion & full_question)
     }
     break;
   case input_kana2roman:
-    sprintf_s(buff, s_title_input.c_str(), quest.kana_letter_.c_str(), s_kana.c_str());
+    sprintf_s(buff, s_title_input.c_str(), quest.kana_letter_.c_str(), s_roman.c_str());
     q.title_ = buff;
     q.question_type_ = quest.question_type_;
     q.answer_str_ = CLexicon::GetInstance()->GetRoman(quest.kana_letter_);
     break;
-  case input_roman2kana:
-    sprintf_s(buff, s_title_input.c_str(), CLexicon::GetInstance()->GetRoman(quest.kana_letter_).c_str(), s_roman.c_str());
+  case input_roman2hiragana:
+    sprintf_s(buff, s_title_input.c_str(), CLexicon::GetInstance()->GetRoman(quest.kana_letter_).c_str(), s_hiragana.c_str());
+    q.title_ = buff;
+    q.question_type_ = quest.question_type_;
+    q.answer_str_ = quest.kana_letter_;
+    break;
+  case input_roman2katakana:
+    sprintf_s(buff, s_title_input.c_str(), CLexicon::GetInstance()->GetRoman(quest.kana_letter_).c_str(), s_katakana.c_str());
     q.title_ = buff;
     q.question_type_ = quest.question_type_;
     q.answer_str_ = quest.kana_letter_;
