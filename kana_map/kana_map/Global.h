@@ -17,6 +17,8 @@
 #define QUESTION_TYPE_LISTEN_WRITE	0x00000010  // todo
 #define QUESTION_TYPE_ALL			      0x0fffffff
 
+#define MAX_STRING_LENGTH           512
+
 enum QuestionType
 {
   select_kana2roman = 0,
@@ -27,19 +29,20 @@ enum QuestionType
 
 struct FullQuestion
 {
-  QuestionType question_type_;
-	std::string title_;
-	std::string option1_;
-	std::string option2_;
-	std::string option3_;
-	std::string option4_;
-	std::string answer_;
-	std::string audio_path_;
+  QuestionType  question_type_;
+	std::string   title_;
+	std::string   option1_;
+	std::string   option2_;
+	std::string   option3_;
+	std::string   option4_;
+	std::string   answer_str_;
+  int           answer_pos_;
+	std::string   audio_path_;
 };
 
 struct Question
 {
-  QuestionType question_type_;
-	std::string kana_letter_;
+  QuestionType  question_type_;
+	std::string   kana_letter_;
 };
 

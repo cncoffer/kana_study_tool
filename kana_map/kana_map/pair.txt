@@ -4,7 +4,7 @@
 え	e
 お	o
 か	ka
-き	ke
+き	ki
 く	ku
 け	ke
 こ	ko
@@ -29,7 +29,7 @@
 へ	he
 ほ	ho
 ま	ma
-み	me
+み	mi
 む	mu
 め	me
 も	mo
@@ -108,7 +108,7 @@
 エ	e
 オ	o
 カ	ka
-キ	ke
+キ	ki
 ク	ku
 ケ	ke
 コ	ko

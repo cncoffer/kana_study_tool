@@ -1,11 +1,12 @@
-#include "Lexicon.h"
-
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
 #include <algorithm>
 #include <iterator>
+
+#include "Lexicon.h"
+#include "MyLog.h"
 
 using namespace std;
 
@@ -49,6 +50,10 @@ void CLexicon::Init()
 CLexicon * CLexicon::GetInstance()
 {
   static CLexicon* inst = new CLexicon();
+  if (inst == nullptr) {
+    LOG_ERROR("new Lexicon failed.");
+    exit(0);
+  }
   return inst;
 }
 

@@ -1,16 +1,14 @@
 #include <iostream>
+
+#include "UIModule.h"
+
 using namespace std;
-
-#include <string>
-#include <unordered_map>
-#include <vector>
-#include <algorithm>
-#include <iterator>
-
-#include "CandidatePool.h"
-#include "Lexicon.h"
 
 int main()
 {
+  CUIModule m;
+  m.DoExam();
+
+  system("pause");
 	return 0;
 }

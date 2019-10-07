@@ -1,9 +1,15 @@
 #include "UIModule.h"
 #include <iostream>
 #include <string>
+
 #include "Global.h"
+#include "MyLog.h"
+
 using namespace std;
 
+#define STR_ANSWER_TIP    "%s, 正确答案是: %s."
+#define STR_ANSWER_IS_RIGHT "√"
+#define STR_ANSWER_IS_WRONG "×"
 
 CUIModule::CUIModule()
 {
@@ -16,7 +22,7 @@ CUIModule::~CUIModule()
 int CUIModule::Init()
 {
 	int sel = 0;
-  int question_type = 0;
+  unsigned int question_type = 0;
 	// select letter test area. 选择平假名 or 片假名 or 所有
 	do {
 		cout << "请选择测试范围(均以包含浊音拗音):\n\t1.平假名\t2.片假名\t3.全部\t4.退出\n";
@@ -33,6 +39,7 @@ int CUIModule::Init()
       question_type |= LETTER_TYPE_ALL;
 			break;
 		case 4:
+      LOG_INFO(STR_USER_QUIT);
 			return USER_QUIT;
 		default:
       cout << "请在1-4范围内选择" << endl;
@@ -63,6 +70,7 @@ int CUIModule::Init()
       question_type |= QUESTION_TYPE_ALL;
       break;
     case 6:
+      LOG_INFO(STR_USER_QUIT);
       return USER_QUIT;
       break;
     default:
@@ -72,9 +80,64 @@ int CUIModule::Init()
     }
   } while (!sel);
 
-  // init candidate pool
-
+  examiner_.SetType(question_type);
 
   return SUCCESS;
+}
+
+void CUIModule::DoExam()
+{
+  FullQuestion  quest;
+  char buff[MAX_STRING_LENGTH];
+  while (true)
+  {
+    if (!examiner_.GetNextQuestion(quest)) {
+      Init();
+      if (!examiner_.ReloadPool()) {
+        LOG_ERROR(STR_RELOAD_FAILED);
+        cout << "加载题库失败, 请退出后重新尝试." << endl;
+        break;
+      }
+      continue;
+    }
+    cout << "开始做题, 一轮结束后, 可重新选择题型." << endl;
+    cout << "如果想结束做题, 请直接关闭程序." << endl;
+    cout << examiner_.GetProcess() << "\t";
+    switch (quest.question_type_)
+    {
+    case select_kana2roman:
+    case select_roman2kana:
+    {
+      cout << quest.title_ << endl;
+      cout << quest.option1_ << "\t\t\t" << quest.option2_ << endl;
+      cout << quest.option3_ << "\t\t\t" << quest.option4_ << endl;
+      string input;
+      cin >> input;
+
+      int sel = atoi(input.c_str()) - 1;
+      bool is_right = (sel == quest.answer_pos_);
+      if (is_right) examiner_.AddRightCount();
+      sprintf_s(buff, MAX_STRING_LENGTH, STR_ANSWER_TIP, is_right ? STR_ANSWER_IS_RIGHT : STR_ANSWER_IS_WRONG, to_string(quest.answer_pos_ + 1).c_str());
+      cout << buff << endl;
+      break;
+    }
+    case input_kana2roman:
+    case input_roman2kana:
+    {
+      cout << quest.title_ << endl;
+      string input;
+      cin >> input;
+      bool is_right = (quest.answer_str_.compare(input) == 0);
+      if (is_right) examiner_.AddRightCount();
+      sprintf_s(buff, MAX_STRING_LENGTH, STR_ANSWER_TIP, is_right ? STR_ANSWER_IS_RIGHT : STR_ANSWER_IS_WRONG, quest.answer_str_.c_str());
+      cout << buff << endl;
+      break;
+    }
+    default:
+      cout << "todo" << endl;
+      break;
+    }
+    cout << "当前正确率为: " << examiner_.GetRateOfCorrect() << endl;
+  }
 }
 

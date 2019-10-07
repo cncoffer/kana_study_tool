@@ -41,8 +41,8 @@ void CMyLog::Log(std::string msg, LogType type)
     break;
   }
 
-  char tmp[_MAX_PATH];
-  sprintf_s(tmp, _MAX_PATH, "[%d:%d:%d][%s]%s\n", local_time.tm_hour, local_time.tm_min, local_time.tm_sec, str_type.c_str(), msg.c_str());
+  char tmp[MAX_STRING_LENGTH];
+  sprintf_s(tmp, MAX_STRING_LENGTH, "[%02d:%02d:%02d][%s]%s\n", local_time.tm_hour, local_time.tm_min, local_time.tm_sec, str_type.c_str(), msg.c_str());
   string output(tmp);
   ofstream ofile(log_file_name_, ios::out | ios::app);
   ofile << output;

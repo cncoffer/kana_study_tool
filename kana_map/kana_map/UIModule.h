@@ -1,10 +1,19 @@
 #pragma once
+
+#include "Examiner.h"
+
 class CUIModule
 {
 public:
 	CUIModule();
 	~CUIModule();
 
-	int Init();
+  void DoExam();
+
+private:
+  int Init();
+
+private:
+  CExaminer examiner_;
 };
 
